@@ -7,7 +7,7 @@ from pathlib import Path
 from handlers import RootHandler, ImageHandler
 
 
-def on_close(root):
+def _on_close(root):
     print('[INFO] closing...')
     root.destroy()
 
@@ -15,16 +15,16 @@ def on_close(root):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Arguments for image filters')
     parser.add_argument('-i', '--img_path', type=str,
-                        default='img.jpg', help='Path to the image file')
+                        required=True, help='Path to the image file')
     parser.add_argument('-o', '--out_path', type=str,
                         default='./snapshots', help='Path to save the filtered images')
     args = parser.parse_args()
 
     out_path = Path(args.out_path)
-    out_path.mkdir(parents=True, exist_ok=True)
 
     root = tk.Tk()
     root.title('Image Filter')
+    root.wm_protocol('WM_DELETE_WINDOW', lambda: _on_close(root))
     # root.geometry('500x500')
 
     img = cv2.imread(args.img_path)
@@ -45,5 +45,5 @@ if __name__ == '__main__':
     root_handler = RootHandler(panel)
 
     root_handler.bind_root(root, img_handler, init=True)
-    root.bind('<Escape>', lambda e: on_close(root))
+    root.bind('<Escape>', lambda e: _on_close(root))
     root.mainloop()
