@@ -97,7 +97,6 @@ def _xpro2(orig, vignette_scale=3):
 
 
 def _clarendon(orig):
-
     img = np.copy(orig)
     b_channel = img[:, :, 0]
     g_channel = img[:, :, 1]
@@ -116,12 +115,10 @@ def _clarendon(orig):
     img[:, :, 0] = np.uint8(b_channel)
     img[:, :, 1] = np.uint8(g_channel)
     img[:, :, 2] = np.uint8(r_channel)
-
     return img
 
 
 def _kelvin(orig):
-
     img = np.copy(orig)
     b_channel = img[:, :, 0]
     g_channel = img[:, :, 1]
@@ -171,94 +168,83 @@ def _moon(orig):
     return img
 
 
-def clarendon(label, img_handler, root_handler=None, e=None, init=True):
+def clarendon(panel, img_handler, root_handler=None, e=None, init=True):
     if e is not None:
         root_handler.update_func(e.char)
-    output = _clarendon(img_handler.frame)
-    img_handler.update_label(label, output)
+    if init is True:
+        output = _clarendon(img_handler.frame)
+        img_handler.update_label(panel, output)
 
 
-def sketch_pencil_using_edge_detection(label, img_handler, root_handler=None, e=None, init=True):
+def sketch_pencil_using_edge_detection(panel, img_handler, root_handler=None, e=None, init=True):
     if e is not None:
         root_handler.update_func(e.char)
-    output = _sketch_pencil_using_edge_detection(img_handler.frame)
-    img_handler.update_label(label, output)
+    if init is True:
+        output = _sketch_pencil_using_edge_detection(img_handler.frame)
+        img_handler.update_label(panel, output)
 
 
-def xpro2(label, img_handler, root_handler=None, e=None, init=True):
+def xpro2(panel, img_handler, root_handler=None, e=None, init=True):
     if e is not None:
         root_handler.update_func(e.char)
-    output = _xpro2(img_handler.frame)
-    img_handler.update_label(label, output)
+    if init is True:
+        output = _xpro2(img_handler.frame)
+        img_handler.update_label(panel, output)
 
 
-def kelvin(label, img_handler, root_handler=None, e=None, init=True):
+def kelvin(panel, img_handler, root_handler=None, e=None, init=True):
     if e is not None:
         root_handler.update_func(e.char)
-    output = _kelvin(img_handler.frame)
-    img_handler.update_label(label, output)
+    if init is True:
+        output = _kelvin(img_handler.frame)
+        img_handler.update_label(panel, output)
 
 
-def sketch_pencil_using_blending(label, img_handler, root_handler=None, e=None, init=True):
+def sketch_pencil_using_blending(panel, img_handler, root_handler=None, e=None, init=True):
     if e is not None:
         root_handler.update_func(e.char)
-    output = _sketch_pencil_using_blending(img_handler.frame)
-    img_handler.update_label(label, output)
+    if init is True:
+        output = _sketch_pencil_using_blending(img_handler.frame)
+        img_handler.update_label(panel, output)
 
 
-def moon(label, img_handler, root_handler=None, e=None, init=True):
+def moon(panel, img_handler, root_handler=None, e=None, init=True):
     if e is not None:
         root_handler.update_func(e.char)
-    output = _moon(img_handler.frame)
-    img_handler.update_label(label, output)
+    if init is True:
+        output = _moon(img_handler.frame)
+        img_handler.update_label(panel, output)
 
 
-def make_cartoon(label, img_handler, root_handler=None, e=None, init=True):
+def make_cartoon(panel, img_handler, root_handler=None, e=None, init=True):
     if e is not None:
         root_handler.update_func(e.char)
-    output = _make_cartoon(img_handler.frame)
-    img_handler.update_label(label, output)
+    if init is True:
+        output = _make_cartoon(img_handler.frame)
+        img_handler.update_label(panel, output)
 
 
-def invert(label, img_handler, root_handler=None, e=None, init=True):
+def invert(panel, img_handler, root_handler=None, e=None, init=True):
     if e is not None:
         root_handler.update_func(e.char)
-    output = cv2.bitwise_not(img_handler.frame)
-    img_handler.update_label(label, output)
+    if init is True:
+        output = cv2.bitwise_not(img_handler.frame)
+        img_handler.update_label(panel, output)
 
 
-def no_filter(label, img_handler, root_handler=None, e=None, init=True):
-    print('no filter')
+def black_and_white(panel, img_handler, root_handler=None, e=None, init=True):
     if e is not None:
         root_handler.update_func(e.char)
-    img_handler.update_label(label, img_handler.frame)
+
+    if init is True:
+        output = cv2.cvtColor(img_handler.frame, cv2.COLOR_BGR2GRAY)
+        _, output = cv2.threshold(output, 125, 255, cv2.THRESH_BINARY)
+        output = cv2.cvtColor(output, cv2.COLOR_GRAY2BGR)
+        img_handler.update_label(panel, output)
 
 
-# def black_and_white(label, img_handler, root_handler=None, e=None, init=True):
-#     if e is not None:
-#         root_handler.update_func(e.char)
-#     if init=True return
-#         output = cv2.cvtColor(img_handler.frame, cv2.img_COLOR_BGR2GRAY)
-#         img_handler.update_label(label, output)
-#    (output, 125, 255, cv2.THRESH_BINARY)
-#     img_handler.update_label(label, output)
-
-
-# if __name__ == '__main__':
-#     root = tk.Tk()
-#     root.title('Filters')
-
-#     img = cv2.imread(filename)
-#     handler = ImageHandler(img)
-
-#     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-#     img = Image.fromarray(img)
-#     img = ImageTk.PhotoImage(img)
-
-#     orig = tk.Label(root, image=img)
-#     orig.grid(row=0, column=0)
-#     panel = tk.Label(root, image=img)
-#     panel.grid(row=0, column=1)
-
-#     bind_root(root, panel, handler)
-#     root.mainloop()
+def no_filter(panel, img_handler, root_handler=None, e=None, init=True):
+    if e is not None:
+        root_handler.update_func(e.char)
+    if init is True:
+        img_handler.update_label(panel, img_handler.frame)

@@ -2,10 +2,10 @@ from PIL import Image, ImageTk
 import cv2
 import time
 
-from filters import clarendon, kelvin, moon, xpro2, make_cartoon, sketch_pencil_using_blending, sketch_pencil_using_edge_detection, invert, no_filter
+from filters import clarendon, kelvin, moon, xpro2, make_cartoon, sketch_pencil_using_blending, sketch_pencil_using_edge_detection, invert, black_and_white, no_filter
 
 
-default_filter_map = {
+_default_filter_map = {
     'c': (clarendon, 'Clarendon'),
     'k': (kelvin, 'Kelvin'),
     'm': (moon, 'Moon'),
@@ -14,6 +14,7 @@ default_filter_map = {
     'b': (sketch_pencil_using_blending, 'Sketch pencil using blending'),
     'e': (sketch_pencil_using_edge_detection, 'Sketch pencil using edge detection'),
     'i': (invert, 'Invert'),
+    'w': (black_and_white, 'Black annd white'),
     'n': (no_filter, 'No Filter')
 }
 
@@ -25,14 +26,14 @@ class RootHandler:
         self.curr_func = no_filter
 
     def bind_root(self, root, img_handler, init=True):
-        for ch, (fn, name) in default_filter_map.items():
+        for ch, (fn, name) in _default_filter_map.items():
             print(f'Press {ch} - {name}')
-            root.bind(f'<{ch}>', lambda e: fn(self.panel, img_handler, self, e, init))
+            root.bind(f'<{ch}>', lambda e, fn=fn: fn(self.panel, img_handler, self, e, init))
 
         print(f'\nPress ESC to quit...\n')
 
     def update_func(self, ch):
-        self.curr_func = default_filter_map[ch][0]
+        self.curr_func = _default_filter_map[ch][0]
 
     def call_func(self, img_handler):
         self.curr_func(self.panel, img_handler)
@@ -57,6 +58,7 @@ class ImageHandler:
 
     def save_img(self, orig=False):
         ts = time.localtime(time.time())
+        self.out_path.mkdir(parents=True, exist_ok=True)
 
         if orig:
             filename = f'orig-{time.strftime("%Y-%m-%d_%H-%M-%S", ts)}.jpg'
