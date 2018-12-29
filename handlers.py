@@ -2,7 +2,7 @@ from PIL import Image, ImageTk
 import cv2
 import time
 
-from filters import clarendon, kelvin, moon, xpro2, make_cartoon, sketch_pencil_using_blending, sketch_pencil_using_edge_detection, invert, black_and_white, no_filter
+from filters import *
 
 
 _default_filter_map = {
@@ -10,11 +10,14 @@ _default_filter_map = {
     'k': (kelvin, 'Kelvin'),
     'm': (moon, 'Moon'),
     'x': (xpro2, 'Xpro2'),
-    'o': (make_cartoon, 'Cartoon'),
+    'o': (cartoon, 'Cartoon'),
     'b': (sketch_pencil_using_blending, 'Sketch pencil using blending'),
     'e': (sketch_pencil_using_edge_detection, 'Sketch pencil using edge detection'),
     'i': (invert, 'Invert'),
     'w': (black_and_white, 'Black annd white'),
+    'r': (warming, 'Warming'),
+    't': (cooling, 'Cooling'),
+    'a': (cartoon2, 'Cartoon2'),
     'n': (no_filter, 'No Filter')
 }
 

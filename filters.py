@@ -1,8 +1,75 @@
 import numpy as np
 import cv2
+from scipy.interpolate import UnivariateSpline
 
 
-def _make_cartoon(orig):
+def _create_LUT_BUC1(x, y):
+    spl = UnivariateSpline(x, y)
+    return spl(range(256))
+
+
+def _create_loopup_tables():
+    incr_ch_lut = _create_LUT_BUC1(
+        [0, 64, 128, 192, 256], [0, 70, 140, 210, 256])
+    decr_ch_lut = _create_LUT_BUC1(
+        [0, 64, 128, 192, 256], [0, 30, 80, 120, 192])
+
+    return incr_ch_lut, decr_ch_lut
+
+
+def _warming(orig):
+    incr_ch_lut, decr_ch_lut = _create_loopup_tables()
+
+    c_b, c_g, c_r = cv2.split(orig)
+    c_r = cv2.LUT(c_r, incr_ch_lut).astype(np.uint8)
+    c_b = cv2.LUT(c_b, decr_ch_lut).astype(np.uint8)
+    img = cv2.merge((c_b, c_g, c_r))
+
+    H, S, V = cv2.split(cv2.cvtColor(img, cv2.COLOR_BGR2HSV))
+    S = cv2.LUT(S, incr_ch_lut).astype(np.uint8)
+
+    output = cv2.cvtColor(cv2.merge((H, S, V)), cv2.COLOR_HSV2BGR)
+    return output
+
+
+def _cooling(orig):
+    incr_ch_lut, decr_ch_lut = _create_loopup_tables()
+
+    c_b, c_g, c_r = cv2.split(orig)
+    c_r = cv2.LUT(c_r, decr_ch_lut).astype(np.uint8)
+    c_b = cv2.LUT(c_b, incr_ch_lut).astype(np.uint8)
+    img = cv2.merge((c_b, c_g, c_r))
+
+    H, S, V = cv2.split(cv2.cvtColor(img, cv2.COLOR_BGR2HSV))
+    S = cv2.LUT(S, decr_ch_lut).astype(np.uint8)
+
+    output = cv2.cvtColor(cv2.merge((H, S, V)), cv2.COLOR_HSV2BGR)
+    return output
+
+
+def _cartoon2(orig):
+    img = orig.copy()
+
+    for _ in range(2):
+        img = cv2.pyrDown(img)
+
+    for _ in range(7):
+        img = cv2.bilateralFilter(img, 9, 9, 7)
+
+    for _ in range(2):
+        img = cv2.pyrUp(img)
+
+    img_gray = cv2.cvtColor(orig, cv2.COLOR_BGR2GRAY)
+    img_blur = cv2.medianBlur(img_gray, 7)
+    img_edge = cv2.adaptiveThreshold(
+        img_blur, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 9, 2)
+    img_edge = cv2.cvtColor(img_edge, cv2.COLOR_GRAY2BGR)
+
+    output = cv2.bitwise_and(img, img_edge)
+    return output
+
+
+def _cartoon(orig):
     img = np.copy(orig)
     img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     img_gray = cv2.GaussianBlur(img_gray, (3, 3), 0)
@@ -216,11 +283,11 @@ def moon(panel, img_handler, root_handler=None, e=None, init=True):
         img_handler.update_label(panel, output)
 
 
-def make_cartoon(panel, img_handler, root_handler=None, e=None, init=True):
+def cartoon(panel, img_handler, root_handler=None, e=None, init=True):
     if e is not None:
         root_handler.update_func(e.char)
     if init is True:
-        output = _make_cartoon(img_handler.frame)
+        output = _cartoon(img_handler.frame)
         img_handler.update_label(panel, output)
 
 
@@ -240,6 +307,30 @@ def black_and_white(panel, img_handler, root_handler=None, e=None, init=True):
         output = cv2.cvtColor(img_handler.frame, cv2.COLOR_BGR2GRAY)
         _, output = cv2.threshold(output, 125, 255, cv2.THRESH_BINARY)
         output = cv2.cvtColor(output, cv2.COLOR_GRAY2BGR)
+        img_handler.update_label(panel, output)
+
+
+def warming(panel, img_handler, root_handler=None, e=None, init=True):
+    if e is not None:
+        root_handler.update_func(e.char)
+    if init is True:
+        output = _warming(img_handler.frame)
+        img_handler.update_label(panel, output)
+
+
+def cooling(panel, img_handler, root_handler=None, e=None, init=True):
+    if e is not None:
+        root_handler.update_func(e.char)
+    if init is True:
+        output = _cooling(img_handler.frame)
+        img_handler.update_label(panel, output)
+
+
+def cartoon2(panel, img_handler, root_handler=None, e=None, init=True):
+    if e is not None:
+        root_handler.update_func(e.char)
+    if init is True:
+        output = _cartoon2(img_handler.frame)
         img_handler.update_label(panel, output)
 
 
