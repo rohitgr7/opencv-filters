@@ -1,7 +1,6 @@
 from PIL import Image, ImageTk
 import threading
 import tkinter as tk
-from imutils.video import VideoStream
 import cv2
 import argparse
 from pathlib import Path
@@ -43,7 +42,7 @@ class PhotoFilter:
     def _video_loop(self):
         try:
             while not self.stop_event.is_set():
-                frame = self.vs.read()
+                _, frame = self.vs.read()
 
                 if self.init:
                     self.init = False
@@ -73,8 +72,10 @@ class PhotoFilter:
 
     def _on_close(self):
         print('[INFO] closing...')
+        self.vs.release()
+        cv2.destroyAllWindows()
         self.stop_event.set()
-        self.vs.stop()
+        time.sleep(1.)
         self.root.destroy()
 
 
@@ -82,13 +83,13 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser('Arguments for video filters')
     parser.add_argument('-o', '--out_path', type=str,
                         default='./snapshots', help='Path to directory to store snapshots')
-    parser.add_argument('-p', '--picamera', type=int, default=0,
-                        help='Wheather or not the Rasberry Pi camera should be used')
+    parser.add_argument('-v', '--video', default=0,
+                        help='Path to video to be filtered, default is 0(Webcam)')
     args = parser.parse_args()
 
     print('[INFO] warming up camera')
-    vs = VideoStream(usePiCamera=args.picamera > 0).start()
-    time.sleep(2.0)
+    vs = cv2.VideoCapture(args.video)
+    time.sleep(2.)
 
     out_path = Path(args.out_path)
 
