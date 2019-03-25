@@ -54,10 +54,12 @@ class ImageHandler:
             self.frame = img
         else:
             self.filtered_frame = img
-        img = Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
-        img = ImageTk.PhotoImage(img)
-        label.configure(image=img)
-        label.image = img
+
+        if img is not None:
+            img = Image.fromarray(img[..., ::-1])
+            img = ImageTk.PhotoImage(img)
+            label.configure(image=img)
+            label.image = img
 
     def save_img(self, orig=False):
         ts = time.localtime(time.time())
