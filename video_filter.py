@@ -81,10 +81,10 @@ class PhotoFilter:
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser('Arguments for video filters')
-    parser.add_argument('-o', '--out_path', type=str,
-                        default='./snapshots', help='Path to directory to store snapshots')
     parser.add_argument('-v', '--video', default=0,
                         help='Path to video to be filtered, default is 0(Webcam)')
+    parser.add_argument('-o', '--out_path', type=str,
+                        default='./snapshots', help='Path to directory to store snapshots')
     args = parser.parse_args()
 
     print('[INFO] warming up camera')
